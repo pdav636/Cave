@@ -1,194 +1,240 @@
+To capture the aesthetic of the illustration, I have updated the code with a multi-level vertical layout. Instead of just moving left-to-right, the player now climbs upward from the dark depths, past the fire, and finally out onto the grassy surface under the sun.
+
+I have also switched the logic to multiplication and updated the CSS to reflect the "stony" earthy tones of the image.
+
+How to Run
+Copy the code below.
+
+Save it as cave_ascent.html.
+
+Open it in your browser.
+
+HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escape Plato's Cave</title>
+    <title>Plato's Ascent: The Multiplication Challenge</title>
     <style>
+        :root {
+            --cave-dark: #2c241a;
+            --cave-light: #d9b382;
+            --sun-gold: #f1c40f;
+            --grass-green: #7da05e;
+        }
+
         body {
             margin: 0;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            background-color: #121212;
+            color: #f0e6d2;
+            font-family: 'Palatino', 'Georgia', serif;
             height: 100vh;
-            background-color: #1a1a1a;
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
+            justify-content: center;
+            align-items: center;
         }
 
-        #game-container {
+        #game-wrapper {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        /* The Cave Visualization */
+        #cave-viewport {
+            width: 400px;
+            height: 600px;
+            background: linear-gradient(to top, 
+                var(--cave-dark) 0%, 
+                #4a3c2c 30%, 
+                var(--cave-light) 70%, 
+                #87CEEB 90%, 
+                var(--sun-gold) 100%);
+            border: 8px solid #3d2b1f;
             position: relative;
-            width: 800px;
-            height: 400px;
-            background: linear-gradient(to right, #000 0%, #332211 50%, #87CEEB 100%);
-            border: 4px solid #444;
             border-radius: 10px;
-            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
-        /* The Cave Wall / Shadows */
-        #cave-elements {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-image: url('https://www.transparenttextures.com/patterns/rock.png');
-            opacity: 0.4;
-        }
-
+        /* Decorative Elements based on the image */
+        .sun { position: absolute; top: 20px; right: 40px; font-size: 50px; text-shadow: 0 0 20px yellow; }
+        .fire { position: absolute; bottom: 250px; left: 20px; font-size: 30px; filter: drop-shadow(0 0 10px orange); }
+        .chains { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-size: 40px; opacity: 0.5; }
+        
         #player {
             position: absolute;
-            bottom: 50px;
-            left: 50px;
-            font-size: 50px;
-            transition: all 0.8s ease-in-out;
-            z-index: 10;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 45px;
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 20;
+            filter: drop-shadow(2px 2px 5px black);
         }
 
-        #ui {
-            margin-top: 20px;
+        /* UI Panel */
+        #control-panel {
+            width: 350px;
+            background: #1e1e1e;
+            padding: 30px;
+            border: 2px solid #d4af37;
+            border-radius: 10px;
             text-align: center;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 20px;
-            border-radius: 15px;
-            width: 400px;
         }
 
         input {
+            width: 80px;
             padding: 10px;
-            font-size: 18px;
-            width: 60px;
-            border-radius: 5px;
-            border: none;
+            font-size: 24px;
+            background: #2c2c2c;
+            border: 1px solid #d4af37;
+            color: white;
             text-align: center;
+            margin: 10px 0;
         }
 
         button {
-            padding: 10px 20px;
+            padding: 12px 25px;
             font-size: 18px;
-            background-color: #d4af37;
+            background: #d4af37;
+            color: black;
             border: none;
-            border-radius: 5px;
             cursor: pointer;
-            margin-left: 10px;
+            font-weight: bold;
+            border-radius: 5px;
         }
 
-        button:hover {
-            background-color: #f1c40f;
-        }
+        button:hover { background: #f1c40f; }
 
-        #message {
-            margin-top: 15px;
-            font-style: italic;
-            height: 20px;
-        }
+        .progress-text { font-style: italic; color: #aaa; margin-top: 15px; min-height: 50px; }
 
-        .chains {
+        #level-indicator {
             position: absolute;
-            bottom: 45px;
-            left: 45px;
-            font-size: 40px;
-            opacity: 0.7;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 100px;
+            color: rgba(255,255,255,0.2);
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <h2>The Allegory of the Cave: The Journey to Truth</h2>
-    <p>Answer 5 questions to break your chains and reach the sun.</p>
-
-    <div id="game-container">
-        <div id="cave-elements"></div>
+<div id="game-wrapper">
+    <div id="cave-viewport">
+        <div class="sun">☀️</div>
+        <div class="fire">🔥</div>
         <div id="chains" class="chains">⛓️</div>
         <div id="player">👤</div>
         
-        <div style="position:absolute; right: 20px; top: 20px; font-size: 60px;">☀️</div>
-    </div>
-
-    <div id="ui">
-        <div id="question-area">
-            <h3 id="question-text">Loading question...</h3>
-            <input type="number" id="answer-input" autofocus>
-            <button onclick="checkAnswer()">Submit</button>
+        <div id="level-indicator">
+            <span>Cave Floor</span>
+            <span>The Fire</span>
+            <span>The Exit</span>
+            <span>Reality</span>
         </div>
-        <div id="message"></div>
     </div>
 
-    <script>
-        let score = 0;
-        let currentAns = 0;
-        const player = document.getElementById('player');
-        const chains = document.getElementById('chains');
-        const qText = document.getElementById('question-text');
-        const input = document.getElementById('answer-input');
-        const message = document.getElementById('message');
+    <div id="control-panel">
+        <h2 style="color: #d4af37; margin-top: 0;">The Ascent</h2>
+        <p>Answer 5 multiplication problems to leave the shadows behind.</p>
+        <hr style="border: 0.5px solid #444;">
+        
+        <div id="game-ui">
+            <h1 id="math-prompt">Loading...</h1>
+            <input type="number" id="answer-input" autofocus>
+            <br>
+            <button onclick="checkAnswer()">Submit Truth</button>
+        </div>
 
-        const quotes = [
-            "You begin to see the shadows for what they are...",
-            "The fire behind you is no longer the only light...",
-            "The steep ascent begins. Your eyes ache...",
-            "You see the reflections in the water...",
-            "The Sun! You finally behold the source of all Truth."
-        ];
+        <p id="feedback" class="progress-text">You are bound by chains of ignorance.</p>
+    </div>
+</div>
 
-        function generateQuestion() {
-            const num1 = Math.floor(Math.random() * 12) + 1;
-            const num2 = Math.floor(Math.random() * 12) + 1;
-            currentAns = num1 + num2;
-            qText.innerText = `What is ${num1} + ${num2}?`;
-            input.value = "";
-            input.focus();
-        }
+<script>
+    let step = 0;
+    let currentSolution = 0;
+    const player = document.getElementById('player');
+    const feedback = document.getElementById('feedback');
+    const prompt = document.getElementById('math-prompt');
+    const input = document.getElementById('answer-input');
 
-        function checkAnswer() {
-            const userAns = parseInt(input.value);
-            
-            if (userAns === currentAns) {
-                score++;
-                movePlayer();
-                if (score < 5) {
-                    message.innerText = quotes[score - 1];
-                    generateQuestion();
-                } else {
-                    winGame();
-                }
+    const narratives = [
+        "The chains fall away. You stand for the first time.",
+        "The fire's light is painful, but you push forward.",
+        "You reach the steep tunnel. The shadows fade.",
+        "You see the reflections in the world above...",
+        "The Sun! You understand the source of all things."
+    ];
+
+    function nextQuestion() {
+        const a = Math.floor(Math.random() * 8) + 3; // 3-10
+        const b = Math.floor(Math.random() * 9) + 2; // 2-10
+        currentSolution = a * b;
+        prompt.innerText = `${a} × ${b} = ?`;
+        input.value = "";
+        input.focus();
+    }
+
+    function checkAnswer() {
+        const val = parseInt(input.value);
+        if (val === currentSolution) {
+            step++;
+            updateVisuals();
+            if (step < 5) {
+                feedback.innerText = narratives[step-1];
+                nextQuestion();
             } else {
-                message.innerText = "The shadows deceive you. Try again.";
+                win();
             }
+        } else {
+            feedback.innerText = "A mere shadow of the truth. Try again.";
+            feedback.style.color = "#e74c3c";
+            setTimeout(() => { feedback.style.color = "#aaa"; }, 1000);
         }
+    }
 
-        function movePlayer() {
-            // Unchain on first correct answer
-            if (score === 1) {
-                chains.style.display = 'none';
-                player.innerText = '🏃';
-            }
-            
-            // Calculate new position (50px start, moving toward ~700px)
-            const newPos = 50 + (score * 130);
-            player.style.left = newPos + "px";
-            
-            // Adjust "brightness" of the player based on progress
-            player.style.filter = `brightness(${1 + (score * 0.5)})`;
+    function updateVisuals() {
+        // Move player up vertically
+        const verticalMove = 30 + (step * 110);
+        player.style.bottom = verticalMove + "px";
+        
+        // Horizontal stagger to simulate climbing a path
+        const horizontalShift = (step % 2 === 0) ? 40 : 60;
+        player.style.left = horizontalShift + "%";
+
+        if (step === 1) {
+            document.getElementById('chains').style.display = 'none';
+            player.innerText = "🏃";
         }
-
-        function winGame() {
-            document.getElementById('question-area').innerHTML = 
-                "<h3>You have reached the Sunlight!</h3><button onclick='location.reload()'>Contemplate Again</button>";
-            message.innerText = "You are no longer a prisoner of perception.";
-            player.style.fontSize = "70px";
-            player.innerText = "✨🧘✨";
+        
+        if (step >= 4) {
+            player.style.filter = "brightness(1.5) drop-shadow(0 0 10px white)";
         }
+    }
 
-        // Listen for 'Enter' key
-        input.addEventListener("keyup", function(event) {
-            if (event.key === "Enter") {
-                checkAnswer();
-            }
-        });
+    function win() {
+        document.getElementById('game-ui').innerHTML = `
+            <h2 style="color: #f1c40f;">ENLIGHTENED</h2>
+            <button onclick="location.reload()">Return to the Cave</button>
+        `;
+        feedback.innerText = narratives[4];
+        player.innerText = "🧘";
+        player.style.fontSize = "60px";
+    }
 
-        generateQuestion();
-    </script>
+    // Allow "Enter" key
+    input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") checkAnswer();
+    });
+
+    nextQuestion();
+</script>
+
 </body>
 </html>
